@@ -510,7 +510,7 @@ export function NuevoPedidoPage() {
             </div>
           </div>
 
-          {/* Correcciones Info */}
+          
           {servicioSeleccionado && ['investigacion_basica', 'tarea_compleja', 'exposicion'].includes(servicioSeleccionado.tipo) && (
             <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-300 dark:border-amber-700 rounded-xl">
               <p className="text-sm font-semibold text-amber-900 dark:text-amber-200 mb-2">
@@ -635,7 +635,7 @@ export function NuevoPedidoPage() {
                           onChange={() => setDetalleImpresionServicio({ ...detalleImpresionServicio, color: false })}
                           className="w-4 h-4 text-primary-600"
                         />
-                        <span className="text-sm">Blanco/Negro ($0.15/pág)</span>
+                        <span className="text-sm">BlancoNegro ($0.15/pág)</span>
                       </label>
                       <label className="flex items-center gap-2 cursor-pointer">
                         <input
