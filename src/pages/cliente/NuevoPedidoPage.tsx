@@ -635,7 +635,7 @@ export function NuevoPedidoPage() {
                           onChange={() => setDetalleImpresionServicio({ ...detalleImpresionServicio, color: false })}
                           className="w-4 h-4 text-primary-600"
                         />
-                        <span className="text-sm">Blanco y Negro ($0.15/pág)</span>
+                        <span className="text-sm">Blanco/Negro ($0.15/pág)</span>
                       </label>
                       <label className="flex items-center gap-2 cursor-pointer">
                         <input
