@@ -76,11 +76,20 @@ export function RegisterPage() {
     );
 
     if (error) {
+      console.error('❌ Error en registro:', error);
       setError(error.message);
       setLoading(false);
     } else {
-      // Enviar correo de bienvenida
-      await emailService.sendWelcomeEmail(formData.email, formData.nombre_completo);
+      console.log('✅ Registro exitoso');
+
+      // Enviar correo en segundo plano (sin esperar)
+      console.log('📧 Iniciando envío de correo...');
+      emailService.sendWelcomeEmail(formData.email, formData.nombre_completo)
+        .then(result => console.log('✅ Correo enviado:', result))
+        .catch(err => console.error('❌ Error al enviar correo:', err));
+
+      // Navegar inmediatamente
+      console.log('🚀 Navegando al dashboard...');
       navigate('/dashboard');
     }
   };

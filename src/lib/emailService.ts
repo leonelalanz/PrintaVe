@@ -1,7 +1,6 @@
 import { supabase } from './supabase';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const isDevelopment = !import.meta.env.PROD;
 
 export const emailService = {
   /**
@@ -9,30 +8,38 @@ export const emailService = {
    */
   async sendWelcomeEmail(email: string, nombreCompleto: string): Promise<boolean> {
     try {
-      const response = await fetch(`${SUPABASE_URL}/functions/v1/send-welcome-email`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-        },
-        body: JSON.stringify({
+      console.log('📧 Enviando correo de bienvenida a:', email);
+
+      if (isDevelopment) {
+        // En desarrollo, solo loguear
+        console.log('✅ [DEV MODE] Correo de bienvenida simulado para:', {
+          email,
+          nombreCompleto,
+          asunto: '¡Bienvenido a PrintaVe! 🎉',
+        });
+        return true;
+      }
+
+      // En producción, enviar via edge function
+      const { data, error } = await supabase.functions.invoke('send-welcome-email', {
+        body: {
           type: 'INSERT',
           record: {
             email,
             nombre_completo: nombreCompleto,
           },
-        }),
+        },
       });
 
-      if (!response.ok) {
-        console.error('Error sending welcome email:', response.statusText);
+      if (error) {
+        console.error('❌ Error enviando correo:', error);
         return false;
       }
 
-      console.log('Welcome email sent successfully');
+      console.log('✅ Correo enviado:', data);
       return true;
     } catch (error) {
-      console.error('Error sending welcome email:', error);
+      console.error('❌ Error en sendWelcomeEmail:', error);
       return false;
     }
   },
@@ -54,26 +61,33 @@ export const emailService = {
         return false;
       }
 
-      // Llamar la edge function
-      const response = await fetch(`${SUPABASE_URL}/functions/v1/send-task-assignment-email`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-        },
-        body: JSON.stringify({
+      console.log('📧 Enviando correo de asignación al empleado');
+
+      if (isDevelopment) {
+        // En desarrollo, solo loguear
+        console.log('✅ [DEV MODE] Correo de asignación simulado para:', {
+          empleado: pedido.empleado?.nombre_completo,
+          email: pedido.empleado?.email,
+          tarea: pedido.titulo,
+        });
+        return true;
+      }
+
+      // En producción, enviar via edge function
+      const { data, error } = await supabase.functions.invoke('send-task-assignment-email', {
+        body: {
           type: 'UPDATE',
           record: pedido,
           old_record: { empleado_id: null },
-        }),
+        },
       });
 
-      if (!response.ok) {
-        console.error('Error sending task assignment email:', response.statusText);
+      if (error) {
+        console.error('Error sending task assignment email:', error);
         return false;
       }
 
-      console.log('Task assignment email sent successfully');
+      console.log('✅ Correo de asignación enviado:', data);
       return true;
     } catch (error) {
       console.error('Error sending task assignment email:', error);
