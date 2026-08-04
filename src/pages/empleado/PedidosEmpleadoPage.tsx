@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Check, X, Eye, MessageCircle, Clock, Filter, RefreshCw, Send } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { emailService } from '../../lib/emailService';
 import { useAuth } from '../../contexts/AuthContext';
 import { useBCVRate } from '../../hooks/useBCVRate';
 import { LoadingCard } from '../../components/common/Loading';
@@ -163,6 +164,9 @@ export function PedidosEmpleadoPage() {
 
     setProcesando(true);
 
+    // Detectar si es la primera asignación del empleado
+    const esPromeraAsignacion = !selectedPedido.empleado_id;
+
     const updateData: Record<string, unknown> = {
       estado: nuevoEstado,
       empleado_id: user.id,
@@ -189,6 +193,11 @@ export function PedidosEmpleadoPage() {
       .from('pedidos')
       .update(updateData)
       .eq('id', selectedPedido.id);
+
+    // Enviar correo de asignación si es la primera vez que se asigna
+    if (!error && esPromeraAsignacion) {
+      await emailService.sendTaskAssignmentEmail(selectedPedido.id);
+    }
 
     if (!error) {
       // Crear notificación al cliente

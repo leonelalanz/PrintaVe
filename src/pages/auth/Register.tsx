@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User, MapPin, Phone } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
+import { emailService } from '../../lib/emailService';
 import { Logo } from '../../components/common/Logo';
 import type { Zona } from '../../types';
 
@@ -77,6 +78,10 @@ export function RegisterPage() {
     if (error) {
       setError(error.message);
       setLoading(false);
+    } else {
+      // Enviar correo de bienvenida
+      await emailService.sendWelcomeEmail(formData.email, formData.nombre_completo);
+      navigate('/dashboard');
     }
   };
 
