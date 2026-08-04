@@ -20,22 +20,25 @@ export const emailService = {
         return true;
       }
 
-      // En producción, enviar via edge function
-      const { data, error } = await supabase.functions.invoke('send-welcome-email', {
-        body: {
-          type: 'INSERT',
-          record: {
-            email,
-            nombre_completo: nombreCompleto,
-          },
+      // En producción, enviar via API route de Vercel
+      const response = await fetch('/api/send-welcome-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          email,
+          nombre_completo: nombreCompleto,
+        }),
       });
 
-      if (error) {
+      if (!response.ok) {
+        const error = await response.json();
         console.error('❌ Error enviando correo:', error);
         return false;
       }
 
+      const data = await response.json();
       console.log('✅ Correo enviado:', data);
       return true;
     } catch (error) {
@@ -73,20 +76,29 @@ export const emailService = {
         return true;
       }
 
-      // En producción, enviar via edge function
-      const { data, error } = await supabase.functions.invoke('send-task-assignment-email', {
-        body: {
-          type: 'UPDATE',
-          record: pedido,
-          old_record: { empleado_id: null },
+      // En producción, enviar via API route de Vercel
+      const response = await fetch('/api/send-task-assignment-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          empleado_email: pedido.empleado?.email,
+          empleado_nombre: pedido.empleado?.nombre_completo,
+          titulo: pedido.titulo,
+          servicio_nombre: pedido.servicio?.nombre,
+          cliente_nombre: pedido.cliente?.nombre_completo,
+          fecha_entrega: pedido.fecha_entrega,
+        }),
       });
 
-      if (error) {
+      if (!response.ok) {
+        const error = await response.json();
         console.error('Error sending task assignment email:', error);
         return false;
       }
 
+      const data = await response.json();
       console.log('✅ Correo de asignación enviado:', data);
       return true;
     } catch (error) {
